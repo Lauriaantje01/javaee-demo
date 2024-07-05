@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<server description="new server">
+  <variable name="MYSQL_HOSTNAME" defaultValue="localhost"/>
+  <variable name="MYSQL_PORT" defaultValue="3307"/>
+  <variable name="MYSQL_USE_SSL" defaultValue="true"/>
+
+  <featureManager>
+<!--    <feature>jakartaee-10.0</feature>-->
+    <feature>restfulWS-3.1</feature>
+    <feature>jsonb-3.0</feature>
+    <feature>xmlBinding-4.0</feature>
+    <feature>mpOpenAPI-3.1</feature>
+    <feature>persistence-3.1</feature>
+    <feature>enterpriseBeans-4.0</feature>
+    <feature>messaging-3.1</feature>
+    <feature>messagingClient-3.0</feature>
+    <feature>messagingserver-3.0</feature>
+    <feature>mpHealth-4.0</feature>
+  </featureManager>
+
+
+<!--  persistence-->
+  <dataSource id="DefaultDataSource" jndiName="jdbc/mySqlDatasource">
+    <jdbcDriver libraryRef="MySQLLib"/>
+    <properties serverName="${MYSQL_HOSTNAME}" portNumber="${MYSQL_PORT}" useSSL="${MYSQL_USE_SSL}"
+                databaseName="jee-live-code" user="root" password="root" serverTimezone="UTC"/>
+  </dataSource>
+
+  <library id="MySQLLib">
+    <fileset dir="${shared.resource.dir}/" includes="mysql*.jar"/>
+  </library>
+
+<!--  For JMS-->
+  <messagingEngine>
+    <queue id="aangifteJmsQueue"/>
+  </messagingEngine>
+
+  <jmsQueueConnectionFactory jndiName="jms/connectionFactory">
+    <properties.wasJms remoteServerAddress="localhost:7276:BootStrapBasicMessaging"/>
+  </jmsQueueConnectionFactory>
+
+  <jmsQueue id="aangifteJmsQueue" jndiName="jms/aangifte">
+    <properties.wasJms queueName="aangifteJmsQueue"/>
+  </jmsQueue>
+
+  <jmsActivationSpec id="jakarta-ee-live-code/AangifteMdb"> <!--syntax: <war-name>/<mdb-name> -->
+    <properties.wasJms destinationRef="aangifteJmsQueue" destinationType="jakarta.jms.Queue"/>
+  </jmsActivationSpec>
+
+    <applicationManager autoExpend="True"/>
+
+  <httpEndpoint id="defaultHttpEndpoint" httpPort="9080" httpsPort="9443"/>
+</server>
